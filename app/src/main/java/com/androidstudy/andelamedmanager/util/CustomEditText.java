@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
+import androidx.appcompat.widget.AppCompatEditText;
+
 import com.androidstudy.andelamedmanager.MedManager;
 import com.androidstudy.andelamedmanager.R;
 
-public class CustomEditText extends android.support.v7.widget.AppCompatEditText {
-
-    private int typefaceType;
+public class CustomEditText extends AppCompatEditText {
 
     public CustomEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -17,6 +17,7 @@ public class CustomEditText extends android.support.v7.widget.AppCompatEditText 
                 attrs,
                 R.styleable.CustomEditText,
                 0, 0);
+        int typefaceType;
         try {
             typefaceType = array.getInteger(R.styleable.CustomEditText_font_name,0);
         }finally {

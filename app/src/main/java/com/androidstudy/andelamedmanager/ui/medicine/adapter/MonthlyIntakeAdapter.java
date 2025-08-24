@@ -1,7 +1,6 @@
 package com.androidstudy.andelamedmanager.ui.medicine.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,16 +8,14 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
 import com.androidstudy.andelamedmanager.ui.main.adapter.CustomItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class MonthlyIntakeAdapter extends RecyclerView.Adapter<MonthlyIntakeAdapter.MedicineViewHolder> implements Filterable {
     CustomItemClickListener listener;
     private List<Medicine> medicineList;
@@ -106,14 +103,13 @@ public class MonthlyIntakeAdapter extends RecyclerView.Adapter<MonthlyIntakeAdap
     }
 
     class MedicineViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.textViewMedicineName)
         TextView textViewMedicineName;
-        @BindView(R.id.textViewMedicineDescription)
         TextView textViewMedicineDescription;
 
         MedicineViewHolder(View view) {
             super(view);
-            ButterKnife.bind(this, view);
+            textViewMedicineName = view.findViewById(R.id.textViewMedicineName);
+            textViewMedicineDescription = view.findViewById(R.id.textViewMedicineDescription);
         }
     }
 

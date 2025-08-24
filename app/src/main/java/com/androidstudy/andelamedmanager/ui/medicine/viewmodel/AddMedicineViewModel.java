@@ -1,8 +1,10 @@
 package com.androidstudy.andelamedmanager.ui.medicine.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.os.AsyncTask;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 
 import com.androidstudy.andelamedmanager.data.AppDatabase;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
@@ -12,7 +14,7 @@ public class AddMedicineViewModel extends AndroidViewModel {
 
     private AppDatabase appDatabase;
 
-    public AddMedicineViewModel(Application application) {
+    public AddMedicineViewModel(@NonNull Application application) {
         super(application);
 
         appDatabase = AppDatabase.getDatabase(this.getApplication());

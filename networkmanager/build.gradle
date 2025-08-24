@@ -1,0 +1,49 @@
+apply plugin: 'com.android.library'
+//apply plugin: 'com.novoda.bintray-release'
+
+//publish {
+//
+//    groupId = 'com.github.jumadeveloper'
+//    artifactId = 'networkmanager'
+//    publishVersion = '0.0.2'
+//    desc = 'A library to check various types of network connections, to allow an app check internet connectivity status before making HTTP Requests.'
+//    licences = ['Apache-2.0']
+//    repoName = 'network-manager'
+//    website = 'https://github.com/jumadeveloper/AndroidNetworkManager'
+//}
+
+android {
+    namespace "com.androidstudy.networkmanager"
+    compileSdk 36
+//    buildToolsVersion "26.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+//    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.annotation:annotation-jvm:1.9.1'
+    // Unit testing
+    testImplementation "junit:junit:4.13.2"
+    implementation 'androidx.core:core-ktx:1.12.0'
+    // Android instrumented testing
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1") {
+        exclude group: "androidx.annotation", module: "annotation"
+    }
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"}

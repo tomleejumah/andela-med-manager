@@ -1,14 +1,16 @@
 package com.androidstudy.andelamedmanager.ui.medicine.ui;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
+import com.androidstudy.andelamedmanager.databinding.ActivityConfirmMedicineBinding;
 import com.androidstudy.andelamedmanager.ui.medicine.viewmodel.AddMedicineViewModel;
 
 import java.text.DateFormat;
@@ -16,26 +18,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class ConfirmMedicineActivity extends AppCompatActivity {
 
-    @BindView(R.id.textViewMedName)
-    TextView textViewMedName;
-    @BindView(R.id.textViewMedDescription)
-    TextView textViewMedDescription;
-    @BindView(R.id.textViewMedInterval)
-    TextView textViewMedInterval;
-    @BindView(R.id.textViewMedStartDate)
-    TextView textViewMedStartDate;
-    @BindView(R.id.textViewMedEndDate)
-    TextView textViewMedEndDate;
+    private ActivityConfirmMedicineBinding binding;
 
-    @BindView(R.id.buttonEditMedicine)
+    TextView textViewMedName;
+    TextView textViewMedDescription;
+    TextView textViewMedInterval;
+    TextView textViewMedStartDate;
+    TextView textViewMedEndDate;
     Button buttonEditMedicine;
-    @BindView(R.id.buttonSaveMedicine)
     Button buttonSaveMedicine;
+
     String name;
     String description;
     String interval;
@@ -49,10 +44,12 @@ public class ConfirmMedicineActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_confirm_medicine);
-        ButterKnife.bind(this);
+        binding = ActivityConfirmMedicineBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        addMedicineViewModel = ViewModelProviders.of(this).get(AddMedicineViewModel.class);
+        initViews();
+
+        addMedicineViewModel = new ViewModelProvider(ConfirmMedicineActivity.this).get(AddMedicineViewModel.class);
 
         Intent intent = getIntent();
         bundle = intent.getExtras();
@@ -87,6 +84,16 @@ public class ConfirmMedicineActivity extends AppCompatActivity {
         buttonSaveMedicine.setOnClickListener(v -> saveMedicine());
     }
 
+    private void initViews() {
+        textViewMedName = binding.textViewMedName;
+        textViewMedDescription = binding.textViewMedDescription;
+        textViewMedInterval = binding.textViewMedInterval;
+        textViewMedStartDate = binding.textViewMedStartDate;
+        textViewMedEndDate = binding.textViewMedEndDate;
+        buttonEditMedicine = binding.buttonEditMedicine;
+        buttonSaveMedicine = binding.buttonSaveMedicine;
+    }
+
     private void saveMedicine() {
 
         Date dateStart = null;
@@ -94,7 +101,7 @@ public class ConfirmMedicineActivity extends AppCompatActivity {
 
         DateFormat srcDf = new SimpleDateFormat("dd/MM/yyyy");
         try {
-             dateStart = srcDf.parse(String.valueOf(startDate));
+            dateStart = srcDf.parse(String.valueOf(startDate));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -117,9 +124,15 @@ public class ConfirmMedicineActivity extends AppCompatActivity {
                 days
         ));
 
-        Intent success = new Intent(getApplicationContext(), MedicineSuccessActivity.class);
+        Intent success = new Intent(ConfirmMedicineActivity.this, MedicineSuccessActivity.class);
         success.putExtras(bundle);
         startActivity(success);
         this.finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

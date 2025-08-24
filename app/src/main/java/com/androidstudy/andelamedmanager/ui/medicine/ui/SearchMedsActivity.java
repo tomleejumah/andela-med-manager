@@ -1,38 +1,35 @@
 package com.androidstudy.andelamedmanager.ui.medicine.ui;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
+import com.androidstudy.andelamedmanager.databinding.ActivitySearchMedsBinding;
 import com.androidstudy.andelamedmanager.ui.medicine.adapter.MonthlyIntakeAdapter;
 import com.androidstudy.andelamedmanager.ui.medicine.viewmodel.MedicineViewModel;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class SearchMedsActivity extends AppCompatActivity {
 
-    @BindView(R.id.toolbar)
+    private ActivitySearchMedsBinding binding;
+
     Toolbar toolbar;
-    @BindView(R.id.layout_empty)
     FrameLayout layout_empty;
-    @BindView(R.id.searchViewMedicine)
     SearchView searchViewMedicine;
-    @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     MonthlyIntakeAdapter monthlyIntakeAdapter;
     private List<Medicine> medicineList;
@@ -40,8 +37,10 @@ public class SearchMedsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_meds);
-        ButterKnife.bind(this);
+        binding = ActivitySearchMedsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        initViews();
 
         Drawable upArrow = getResources().getDrawable(R.drawable.ic_chevron_left_white_24dp);
         toolbar.setNavigationIcon(upArrow);
@@ -58,6 +57,13 @@ public class SearchMedsActivity extends AppCompatActivity {
         });
 
         loadSearch();
+    }
+
+    private void initViews() {
+        toolbar = binding.toolbar;
+        layout_empty = binding.layoutEmpty;
+        searchViewMedicine = binding.searchViewMedicine;
+        recyclerView = binding.recyclerView;
     }
 
     @Override
@@ -113,4 +119,9 @@ public class SearchMedsActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
+    }
 }

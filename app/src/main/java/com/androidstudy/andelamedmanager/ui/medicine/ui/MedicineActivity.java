@@ -3,45 +3,35 @@ package com.androidstudy.andelamedmanager.ui.medicine.ui;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.MedData;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
+import com.androidstudy.andelamedmanager.databinding.ActivityMedicineBinding;
 import com.androidstudy.andelamedmanager.ui.medicine.adapter.MedicineSparkAdapter;
 import com.robinhood.spark.SparkView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class MedicineActivity extends AppCompatActivity {
+    private ActivityMedicineBinding binding;
 
-    @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.textViewMedicineName)
     TextView textViewMedicineName;
-    @BindView(R.id.sparkView)
     SparkView sparkView;
-    @BindView(R.id.textViewOne)
     TextView textViewOne;
-    @BindView(R.id.textViewTwo)
     TextView textViewTwo;
-    @BindView(R.id.textViewThree)
     TextView textViewThree;
-    @BindView(R.id.textViewFour)
     TextView textViewFour;
-    @BindView(R.id.textViewInterval)
     TextView textViewInterval;
-    @BindView(R.id.textViewMedPills)
     TextView textViewMedPills;
-    @BindView(R.id.textViewMedicinePercentage)
     TextView textViewMedicinePercentage;
-    @BindView(R.id.textViewMedDescription)
     TextView textViewMedDescription;
 
     private List<MedData> medDataList;
@@ -49,8 +39,10 @@ public class MedicineActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_medicine);
-        ButterKnife.bind(this);
+        binding = ActivityMedicineBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        initViews();
 
         Drawable upArrow = getResources().getDrawable(R.drawable.ic_chevron_left_white_24dp);
         toolbar.setNavigationIcon(upArrow);
@@ -60,7 +52,6 @@ public class MedicineActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         medDataList = getDummyMedData();
-
         setupSparkView();
 
         Intent in = getIntent();
@@ -98,21 +89,21 @@ public class MedicineActivity extends AppCompatActivity {
                 textViewFour.setText("10:00 PM");
                 break;
         }
-
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        onBackPressed();
-        return true;
+    private void initViews() {
+        toolbar = binding.toolbar;
+        textViewMedicineName = binding.textViewMedicineName;
+        sparkView = binding.sparkView;
+        textViewOne = binding.textViewOne;
+        textViewTwo = binding.textViewTwo;
+        textViewThree = binding.textViewThree;
+        textViewFour = binding.textViewFour;
+        textViewInterval = binding.textViewInterval;
+        textViewMedPills = binding.textViewMedPills;
+        textViewMedicinePercentage = binding.textViewMedicinePercentage;
+        textViewMedDescription = binding.textViewMedDescription;
     }
-
-    private void setupSparkView() {
-        MedicineSparkAdapter adapter = new MedicineSparkAdapter(medDataList);
-        sparkView.setAdapter(adapter);
-    }
-
     private List<MedData> getDummyMedData() {
         List<MedData> listViewItems = new ArrayList<>();
         listViewItems.add(new MedData(2L, 5L));
@@ -123,5 +114,16 @@ public class MedicineActivity extends AppCompatActivity {
         listViewItems.add(new MedData(9L, 13L));
         listViewItems.add(new MedData(10L, 16L));
         return listViewItems;
+    }
+
+    private void setupSparkView() {
+        MedicineSparkAdapter adapter = new MedicineSparkAdapter(medDataList);
+        sparkView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

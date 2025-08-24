@@ -1,20 +1,18 @@
 package com.androidstudy.andelamedmanager.ui.medicine.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
 import com.androidstudy.andelamedmanager.ui.main.adapter.CustomItemClickListener;
 
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class DailyMedicineStatisticsAdapter extends RecyclerView.Adapter<DailyMedicineStatisticsAdapter.MedicineHolder> {
     CustomItemClickListener listener;
@@ -70,24 +68,23 @@ public class DailyMedicineStatisticsAdapter extends RecyclerView.Adapter<DailyMe
         return medicineList.size();
     }
 
-    class MedicineHolder extends RecyclerView.ViewHolder {
+    static class MedicineHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.textViewMedicineName)
         TextView textViewMedicineName;
-        @BindView(R.id.textViewOne)
         TextView textViewOne;
-        @BindView(R.id.textViewTwo)
         TextView textViewTwo;
-        @BindView(R.id.textViewThree)
         TextView textViewThree;
-        @BindView(R.id.textViewFour)
         TextView textViewFour;
-        @BindView(R.id.textViewIntervals)
         TextView textViewIntervals;
 
         public MedicineHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            textViewMedicineName = itemView.findViewById(R.id.textViewMedicineName);
+            textViewOne = itemView.findViewById(R.id.textViewOne);
+            textViewTwo = itemView.findViewById(R.id.textViewTwo);
+            textViewThree = itemView.findViewById(R.id.textViewThree);
+            textViewFour = itemView.findViewById(R.id.textViewFour);
+            textViewIntervals = itemView.findViewById(R.id.textViewIntervals);
         }
     }
 }

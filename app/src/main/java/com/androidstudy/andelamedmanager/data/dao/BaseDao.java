@@ -1,9 +1,9 @@
 package com.androidstudy.andelamedmanager.data.dao;
 
-import android.arch.persistence.room.Delete;
-import android.arch.persistence.room.Insert;
+import static androidx.room.OnConflictStrategy.REPLACE;
 
-import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
+import androidx.room.Delete;
+import androidx.room.Insert;
 
 /**
  * This is a base DAO that will hold common SQL Queries mapped to methods.

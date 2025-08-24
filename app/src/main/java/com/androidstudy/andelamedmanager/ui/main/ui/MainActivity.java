@@ -2,22 +2,10 @@ package com.androidstudy.andelamedmanager.ui.main.ui;
 
 import android.app.AlarmManager;
 import android.app.NotificationManager;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PagerSnapHelper;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +13,20 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
@@ -61,27 +63,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final int NOTIFICATION_ID = 0;
-    @BindView(R.id.date)
+
+    // View Binding
+    private ActivityMainBinding binding;
+
     TextView date;
-    @BindView(R.id.recyclerViewDailyMedicineStatistics)
     RecyclerView recyclerViewDailyMedicineStatistics;
-    @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
-    @BindView(R.id.recyclerViewDailyMedicine)
     RecyclerView recyclerViewDailyMedicine;
-    @BindView(R.id.coordinator_layout)
     CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.text_empty)
     TextView emptyText;
-    @BindView(R.id.layout_empty)
     FrameLayout emptyFrame;
-    @BindView(R.id.cardMedDaily)
     CardView cardMedDaily;
     Calendar calendar;
     SimpleDateFormat simpleDateFormat;
@@ -99,14 +94,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mainViewModel =new ViewModelProvider(MainActivity.this).get(MainViewModel.class);
         user = mainViewModel.getUserLiveData();
         binding.setUser(user);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ButterKnife.bind(this);
+
+        // Initialize views using View Binding
+        initViews();
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -133,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         date.setText(currentDate);
 
         //Initialize Snackbar Manager -> Attach/pin to the bottom of the layout :)
-        snackProgressBarManager = new SnackProgressBarManager(coordinatorLayout)
+        snackProgressBarManager = new SnackProgressBarManager(coordinatorLayout,MainActivity.this)
                 .setProgressBarColor(R.color.colorAccent)
                 .setOverlayLayoutAlpha(0.6f);
 
@@ -167,12 +164,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         recyclerView.setAdapter(mainDashboardAdapter);
 
-        MedicineViewModel medicineViewModel = ViewModelProviders.of(this).get(MedicineViewModel.class);
+        MedicineViewModel medicineViewModel =new ViewModelProvider(this).get(MedicineViewModel.class);
         medicineViewModel.getMedicineList().observe(this, medicines -> {
             if (MainActivity.this.medicineList == null) {
                 setListData(medicines);
             }
         });
+    }
+
+    private void initViews() {
+        date = binding.date;
+        recyclerViewDailyMedicineStatistics = binding.recyclerViewDailyMedicineStatistics;
+        recyclerView = binding.recyclerView;
+        recyclerViewDailyMedicine = binding.recyclerViewDailyMedicine;
+        coordinatorLayout = binding.coordinatorLayout;
+        emptyText = binding.textEmpty;
+        emptyFrame = binding.layoutEmpty;
+        cardMedDaily = binding.cardMedDaily;
     }
 
     public void setListData(final List<Medicine> medicineList) {
@@ -306,7 +314,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
 
         SnackProgressBar snackProgressBar = new SnackProgressBar(
-                SnackProgressBar.TYPE_INDETERMINATE,
+                SnackProgressBar.TYPE_NORMAL,
+//                SnackProgressBar.TYPE_INDETERMINATE,
                 "Logging Out...")
                 .setSwipeToDismiss(false);
 
@@ -329,6 +338,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
         //Unreachable anyway
         snackProgressBarManager.dismiss();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import com.androidstudy.andelamedmanager.settings.Settings;
 import com.androidstudy.andelamedmanager.util.TypeFactory;
 
+//import timber.log.BuildConfig;
 import timber.log.Timber;
 
 public class MedManager extends Application {

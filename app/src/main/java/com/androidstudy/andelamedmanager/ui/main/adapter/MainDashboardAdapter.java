@@ -1,20 +1,18 @@
 package com.androidstudy.andelamedmanager.ui.main.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.MenuView;
 
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class MainDashboardAdapter extends RecyclerView.Adapter<MainDashboardAdapter.MenuOptionsViewHolder> {
     CustomItemClickListener listener;
@@ -49,14 +47,13 @@ public class MainDashboardAdapter extends RecyclerView.Adapter<MainDashboardAdap
 
     class MenuOptionsViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.imageView)
         ImageView imageView;
-        @BindView(R.id.textView)
         TextView textView;
 
         public MenuOptionsViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            imageView = itemView.findViewById(R.id.imageView);
+            textView = itemView.findViewById(R.id.textView);
         }
 
         private void bindData(MenuView menuItem) {

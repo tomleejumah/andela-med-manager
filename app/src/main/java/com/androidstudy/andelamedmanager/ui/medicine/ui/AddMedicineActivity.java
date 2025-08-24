@@ -4,15 +4,17 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.androidstudy.andelamedmanager.R;
+import com.androidstudy.andelamedmanager.databinding.ActivityAddMedicineBinding;
 import com.androidstudy.andelamedmanager.ui.main.ui.MainActivity;
 
 import java.text.ParseException;
@@ -21,32 +23,19 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 public class AddMedicineActivity extends AppCompatActivity {
 
-    @BindView(R.id.editTextMedicineName)
-    EditText editTextMedicineName;
-    @BindView(R.id.editTextMedicineDescription)
-    EditText editTextMedicineDescription;
-    @BindView(R.id.editTextMedicineStartDate)
-    EditText editTextMedicineStartDate;
-    @BindView(R.id.editTextMedicineEndDate)
-    EditText editTextMedicineEndDate;
-    @BindView(R.id.buttonContinue)
-    Button buttonContinue;
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    private ActivityAddMedicineBinding binding;
 
-    @BindView(R.id.textViewOne)
+    EditText editTextMedicineName;
+    EditText editTextMedicineDescription;
+    EditText editTextMedicineStartDate;
+    EditText editTextMedicineEndDate;
+    Button buttonContinue;
+    Toolbar toolbar;
     TextView textViewOne;
-    @BindView(R.id.textViewTwo)
     TextView textViewTwo;
-    @BindView(R.id.textViewThree)
     TextView textViewThree;
-    @BindView(R.id.textViewFour)
     TextView textViewFour;
 
     String name, description, startDate, endDate, pills;
@@ -57,8 +46,10 @@ public class AddMedicineActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_medicine);
-        ButterKnife.bind(this);
+        binding = ActivityAddMedicineBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        initViews();
 
         Drawable upArrow = getResources().getDrawable(R.drawable.ic_chevron_left_white_24dp);
         toolbar.setNavigationIcon(upArrow);
@@ -102,6 +93,28 @@ public class AddMedicineActivity extends AppCompatActivity {
         });
 
         buttonContinue.setOnClickListener(view -> getPills());
+
+        setupTextViewClickListeners();
+    }
+
+    private void initViews() {
+        editTextMedicineName = binding.editTextMedicineName;
+        editTextMedicineDescription = binding.editTextMedicineDescription;
+        editTextMedicineStartDate = binding.editTextMedicineStartDate;
+        editTextMedicineEndDate = binding.editTextMedicineEndDate;
+        buttonContinue = binding.buttonContinue;
+        toolbar = binding.toolbar;
+        textViewOne = binding.textViewOne;
+        textViewTwo = binding.textViewTwo;
+        textViewThree = binding.textViewThree;
+        textViewFour = binding.textViewFour;
+    }
+
+    private void setupTextViewClickListeners() {
+        textViewOne.setOnClickListener(this::textViewOne);
+        textViewTwo.setOnClickListener(this::textViewTwo);
+        textViewThree.setOnClickListener(this::textViewThree);
+        textViewFour.setOnClickListener(this::textViewFour);
     }
 
     private void getPills() {
@@ -144,7 +157,6 @@ public class AddMedicineActivity extends AppCompatActivity {
         return true;
     }
 
-    @OnClick(R.id.textViewOne)
     public void textViewOne(View view) {
         textViewOne.setBackgroundResource(R.drawable.bg_blue_button_sharp);
         textViewOne.setTextColor(getResources().getColor(R.color.white));
@@ -161,7 +173,6 @@ public class AddMedicineActivity extends AppCompatActivity {
         interval = 1;
     }
 
-    @OnClick(R.id.textViewTwo)
     public void textViewTwo(View view) {
         textViewOne.setBackgroundResource(R.drawable.bg_white_button_sharp);
         textViewOne.setTextColor(getResources().getColor(R.color.bg_login_button));
@@ -178,7 +189,6 @@ public class AddMedicineActivity extends AppCompatActivity {
         interval = 2;
     }
 
-    @OnClick(R.id.textViewThree)
     public void textViewThree(View view) {
         textViewOne.setBackgroundResource(R.drawable.bg_white_button_sharp);
         textViewOne.setTextColor(getResources().getColor(R.color.bg_login_button));
@@ -195,7 +205,6 @@ public class AddMedicineActivity extends AppCompatActivity {
         interval = 3;
     }
 
-    @OnClick(R.id.textViewFour)
     public void textViewFour(View view) {
         textViewOne.setBackgroundResource(R.drawable.bg_white_button_sharp);
         textViewOne.setTextColor(getResources().getColor(R.color.bg_login_button));
@@ -261,5 +270,11 @@ public class AddMedicineActivity extends AppCompatActivity {
         bundle.putInt("days", days);
         medicine.putExtras(bundle);
         startActivity(medicine);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 }

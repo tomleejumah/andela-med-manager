@@ -2,15 +2,16 @@ package com.androidstudy.andelamedmanager.ui.medicine.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
@@ -20,8 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class DailyMedicineAdapter extends RecyclerView.Adapter<DailyMedicineAdapter.MedicineHolder> {
     CustomItemClickListener listener;
@@ -86,20 +85,19 @@ public class DailyMedicineAdapter extends RecyclerView.Adapter<DailyMedicineAdap
     }
 
     public class MedicineHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.textViewMedicineName)
         TextView textViewMedicineName;
-        @BindView(R.id.textViewMedicineDescription)
         TextView textViewMedicineDescription;
-        @BindView(R.id.textViewPercentage)
         TextView textViewPercentage;
-        @BindView(R.id.iconMedicineLevel)
         ImageView iconMedicineLevel;
-        @BindView(R.id.container)
         LinearLayout container;
 
         MedicineHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            textViewMedicineName = itemView.findViewById(R.id.textViewMedicineName);
+            textViewMedicineDescription = itemView.findViewById(R.id.textViewMedicineDescription);
+            textViewPercentage = itemView.findViewById(R.id.textViewPercentage);
+            iconMedicineLevel = itemView.findViewById(R.id.iconMedicineLevel);
+            container = itemView.findViewById(R.id.container);
         }
     }
 }

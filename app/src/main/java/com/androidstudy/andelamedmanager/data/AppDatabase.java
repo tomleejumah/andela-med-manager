@@ -1,17 +1,18 @@
 package com.androidstudy.andelamedmanager.data;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
+
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 import com.androidstudy.andelamedmanager.data.dao.MedicineDao;
 import com.androidstudy.andelamedmanager.data.dao.UserDao;
 import com.androidstudy.andelamedmanager.data.model.Medicine;
 import com.androidstudy.andelamedmanager.data.model.User;
 
-@Database(entities = {Medicine.class, User.class}, version = 1)
+@Database(entities = {Medicine.class, User.class}, version = 1, exportSchema = false)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
 
