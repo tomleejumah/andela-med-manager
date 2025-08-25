@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -16,9 +17,105 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginStart="20dp"
+        android:layout_marginVertical="8dp"
+        android:text="Back-Up"/>
+
+    <Switch
+        android:id="@+id/backUpSwitch"
+        android:drawablePadding="20dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="19sp"
+        android:drawableLeft="@drawable/ic_google_drive"
+        android:text="Drive Back-Up" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginStart="20dp"
+        android:layout_marginVertical="8dp"
+        android:text="Notifications"/>
+
+    <Switch
+        android:id="@+id/notifSwitch"
+        android:text="Notifications"
+        android:drawablePadding="20dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_notifications"
+        android:textSize="19sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginStart="20dp"
+        android:layout_marginVertical="8dp"
+        android:text="Dark Mode"/>
+
+    <Switch
+        android:id="@+id/darkModeSwitch"
+        android:drawablePadding="20dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="19sp"
+        android:drawableLeft="@drawable/ic_dark_mode"
+        android:text="Dark Mode" />
+
+
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginStart="20dp"
+        android:layout_marginVertical="8dp"
+        android:text="Other Settings"/>
+
+    <TextView
+        android:drawablePadding="20dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtLanguage"
+        android:drawableLeft="@drawable/ic_languages"
+        android:textSize="19sp"
+        android:text="Language" />
+
+    <TextView
+        android:textColor="@color/black"
+        android:drawablePadding="20dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtLogOut"
+        android:drawableLeft="@drawable/ic_logout"
+        android:textSize="19sp"
+        android:text="Logout" />
 </LinearLayout>

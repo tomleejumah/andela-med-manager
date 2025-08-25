@@ -22,7 +22,6 @@ import java.util.Date;
 public class ConfirmMedicineActivity extends AppCompatActivity {
 
     private ActivityConfirmMedicineBinding binding;
-
     TextView textViewMedName;
     TextView textViewMedDescription;
     TextView textViewMedInterval;

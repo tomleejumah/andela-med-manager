@@ -3,6 +3,9 @@ package com.androidstudy.andelamedmanager;
 import android.app.Application;
 import android.graphics.Typeface;
 
+import androidx.lifecycle.ProcessLifecycleOwner;
+
+import com.androidstudy.andelamedmanager.drive.AppLifecycleObserver;
 import com.androidstudy.andelamedmanager.settings.Settings;
 import com.androidstudy.andelamedmanager.util.TypeFactory;
 
@@ -21,6 +24,10 @@ public class MedManager extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //support lifecycle
+        ProcessLifecycleOwner.get().getLifecycle()
+                .addObserver(new AppLifecycleObserver(this));
 
         //Plant a Debug Timber Tree to log :)
         if (BuildConfig.DEBUG) {

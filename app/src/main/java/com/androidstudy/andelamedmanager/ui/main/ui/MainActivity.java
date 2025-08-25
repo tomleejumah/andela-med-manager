@@ -43,6 +43,7 @@ import com.androidstudy.andelamedmanager.ui.medicine.ui.AddMedicineActivity;
 import com.androidstudy.andelamedmanager.ui.medicine.ui.MedicineActivity;
 import com.androidstudy.andelamedmanager.ui.medicine.ui.MonthlyIntakeActivity;
 import com.androidstudy.andelamedmanager.ui.medicine.ui.SearchMedsActivity;
+import com.androidstudy.andelamedmanager.ui.medicine.ui.SettingsActivity;
 import com.androidstudy.andelamedmanager.ui.medicine.viewmodel.MedicineViewModel;
 import com.androidstudy.andelamedmanager.util.CirclePagerIndicatorDecoration;
 import com.androidstudy.andelamedmanager.util.ItemOffsetDecoration;
@@ -292,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             profileDialog.show(getSupportFragmentManager(), "profile");
             return true;
         } else if (id == R.id.action_settings) {
-            // startActivity(new Intent(this, SettingsActivity.class));
+             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
