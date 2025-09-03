@@ -131,7 +131,7 @@ public class DriveBackupWorker extends Worker {
 
     private boolean backupSharedPreferences(Drive driveService) {
         try {
-            String[] prefFiles = {"backup_prefs"};
+            String[] prefFiles = {"backup_prefs,andela,loggedin"};
             JSONObject allPrefs = new JSONObject();
 
             for (String prefName : prefFiles) {

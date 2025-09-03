@@ -72,7 +72,7 @@ The users can leave the app by signing out. This clears their user data as well 
 <img src="https://github.com/jumaallan/AndelaMedManager/blob/master/screenshots/andela-profile-card.png" width="280"/> 
 
 ### Extra Features
-* Backup User and Medicine Data to their Google Drive - Not fully complete
+* Backup User and Medicine Data to their Google Drive - complete
 
 ### Undone Parts
 * Not done all Unit Tests
