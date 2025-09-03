@@ -1,9 +1,8 @@
-package com.androidstudy.andelamedmanager.drive;
+package com.androidstudy.andelamedmanager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -14,6 +13,8 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+
+import com.androidstudy.andelamedmanager.drive.DriveBackupWorker;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +33,7 @@ public class AppLifecycleObserver implements LifecycleObserver {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if (prefs.getBoolean("auto_backup", false)) {
 //            enqueueBackupWork(context);
-            enqueuePeriodicBackup(context);
+//            enqueuePeriodicBackup(context);
         }
     }
 

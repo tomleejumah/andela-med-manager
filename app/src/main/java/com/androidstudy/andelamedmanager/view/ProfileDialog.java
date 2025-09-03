@@ -41,14 +41,23 @@ public class ProfileDialog extends DialogFragment {
         View view = binding.getRoot();
 
 //        User user = mainViewModel.getUserLiveData().getValue();
-        User user = mainViewModel.getUserLiveData();
+//        User user = mainViewModel.getUserLiveData();
 
-        if (user != null) {
-            binding.textViewName.setText(user.getName());
-            Glide.with(this)
-                    .load(user.getImageUrl())
-                    .into(binding.imageViewUser);
-        }
+       mainViewModel.getUserLiveData().observe(this, user -> {
+           if (user != null) {
+               binding.textViewName.setText(user.getName());
+               Glide.with(this)
+                       .load(user.getImageUrl())
+                       .into(binding.imageViewUser);
+           }
+       });
+
+//        if (user != null) {
+//            binding.textViewName.setText(user.getName());
+//            Glide.with(this)
+//                    .load(user.getImageUrl())
+//                    .into(binding.imageViewUser);
+//        }
 
         return new MaterialDialog.Builder(requireContext())
                 .customView(view, false)

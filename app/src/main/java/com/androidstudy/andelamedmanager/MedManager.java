@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.androidstudy.andelamedmanager.drive.AppLifecycleObserver;
 import com.androidstudy.andelamedmanager.settings.Settings;
 import com.androidstudy.andelamedmanager.util.TypeFactory;
 

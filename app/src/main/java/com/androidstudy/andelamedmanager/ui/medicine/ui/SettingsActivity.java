@@ -4,48 +4,48 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Switch;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.androidstudy.andelamedmanager.R;
 import com.androidstudy.andelamedmanager.drive.DriveBackupWorker;
-import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.Scope;
 import com.google.api.services.drive.DriveScopes;
 
-import java.util.Collections;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
+//todo handle the other settings actions like logout and dark mode theme
 
 public class SettingsActivity extends AppCompatActivity {
-    SharedPreferences prefs;
+    SharedPreferences prefs, authPrefs;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch backUpSwitch;
-    private static final int AUTH_REQUEST_CODE = 1001;
 
+    private GoogleSignInClient googleSignInClient;
+
+    // Activity Result API launcher
+    private ActivityResultLauncher<Intent> signInLauncher;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -56,22 +56,41 @@ public class SettingsActivity extends AppCompatActivity {
             return insets;
         });
 
-//        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         backUpSwitch = findViewById(R.id.backUpSwitch);
 
-//        backUpSwitch.setChecked(prefs.getBoolean("auto_backup", false));
-//
-//        backUpSwitch.setOnClickListener(view -> {
-//            prefs.edit().putBoolean("auto_backup", backUpSwitch.isChecked()).apply();
-//        });
-
         prefs = getSharedPreferences("backup_prefs", MODE_PRIVATE);
-        prefs.edit().putBoolean("drive_scope_granted", false).apply(); //todo remove this
+        authPrefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
         backUpSwitch.setChecked(prefs.getBoolean("auto_backup", false));
+
+        // Init Google Sign-In with Drive scope
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(new Scope(DriveScopes.DRIVE_APPDATA))
+                .requestEmail()
+                .build();
+
+        googleSignInClient = GoogleSignIn.getClient(this, signInOptions);
+
+        // Register ActivityResultLauncher
+        signInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+                        if (account != null) {
+                            Timber.d("Drive scope granted.");
+                            authPrefs.edit().putBoolean("drive_scope_granted", true).apply();
+                            scheduleBackup(this);
+                        }
+                    } else {
+                        Timber.e("User denied Drive permissions.");
+                        backUpSwitch.setChecked(false);
+                        prefs.edit().putBoolean("auto_backup", false).apply();
+                    }
+                }
+        );
 
         backUpSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("auto_backup", isChecked).apply();
-            //todo a logic to prevent auto request each timw
             if (isChecked) {
                 requestDrivePermissions();
             } else {
@@ -80,91 +99,29 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-//        // Check for pending authentication from previous backup failures
-//        checkAndHandleAuthentication();
+        checkAndHandleAuthentication();
     }
 
-    @SuppressLint("StaticFieldLeak")
-   private void requestDrivePermissions() {
-    GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-    if (account == null) {
-        Timber.e("No signed-in Google account");
-        backUpSwitch.setChecked(false);
-        prefs.edit().putBoolean("auto_backup", false).apply();
-        return;
-    }
+    private void requestDrivePermissions() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
-    new AsyncTask<Void, Void, String>() {
-        @Override
-        protected String doInBackground(Void... voids) {
-            try {
-                GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                        SettingsActivity.this, Collections.singletonList(DriveScopes.DRIVE_APPDATA));
-                credential.setSelectedAccount(account.getAccount());
-                return credential.getToken();
-            } catch (UserRecoverableAuthException e) {
-                startActivityForResult(e.getIntent(), AUTH_REQUEST_CODE);
-                return null;
-            } catch (Exception e) {
-                Timber.e(e, "Failed to get token");
-                return null;
-            }
+        if (account != null && GoogleSignIn.hasPermissions(account, new Scope(DriveScopes.DRIVE_APPDATA))) {
+            Timber.d("Already signed in with Drive scope.");
+            scheduleBackup(this);
+        } else {
+            Timber.d("Requesting Drive scope via Google Sign-In.");
+            signInLauncher.launch(googleSignInClient.getSignInIntent());
         }
-
-        @Override
-        protected void onPostExecute(String token) {
-            if (token != null) {
-                prefs.edit().putBoolean("drive_scope_granted", true).apply();
-                scheduleBackup(SettingsActivity.this);
-            } else {
-                // Revert switch if token retrieval fails (except for consent prompt)
-                if (!isConsentScreenLaunched()) {
-                    backUpSwitch.setChecked(false);
-                    prefs.edit().putBoolean("auto_backup", false).apply();
-                }
-            }
-        }
-
-        private boolean isConsentScreenLaunched() {
-            // Check if startActivityForResult was called (simplified check)
-            return prefs.getString("auth_intent", null) != null;
-        }
-    }.execute();
-}
-
-    private void scheduleBackup(Context context) {
-        // Same as previous scheduleBackup method
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true)
-                .build();
-
-        OneTimeWorkRequest backupRequest = new OneTimeWorkRequest.Builder(DriveBackupWorker.class)
-                .setConstraints(constraints)
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
-                .setId(UUID.randomUUID())
-                .build();
-
-        WorkManager.getInstance(context).enqueueUniqueWork("drive_backup",
-                ExistingWorkPolicy.REPLACE, backupRequest);
-        Timber.d("Backup scheduled");
     }
 
     private void checkAndHandleAuthentication() {
-        String pendingAuth = prefs.getString("auth_intent", null);
-        if (pendingAuth != null) {
-            prefs.edit().remove("auth_intent").apply();
-            requestDrivePermissions();
-        }
-
-        // Monitor backup work status
         WorkManager.getInstance(this).getWorkInfosForUniqueWorkLiveData("drive_backup")
                 .observe(this, workInfos -> {
                     if (workInfos != null && !workInfos.isEmpty()) {
                         WorkInfo workInfo = workInfos.get(0);
                         if (workInfo.getState() == WorkInfo.State.FAILED) {
                             Timber.e("Backup failed, checking for auth issues");
-                            checkAndHandleAuthentication();
+                            requestDrivePermissions();
                         } else if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
                             Timber.d("Backup completed successfully");
                         }
@@ -172,18 +129,23 @@ public class SettingsActivity extends AppCompatActivity {
                 });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AUTH_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Timber.d("User granted Drive permissions");
-                scheduleBackup(this);
-            } else {
-                Timber.e("User denied Drive permissions");
-                backUpSwitch.setChecked(false); // Revert switch if user denies
-                prefs.edit().putBoolean("auto_backup", false).apply();
-            }
-        }
+    private void scheduleBackup(Context context) {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWorkRequest periodicBackup = new PeriodicWorkRequest.Builder(
+                DriveBackupWorker.class,
+                1, TimeUnit.DAYS)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "periodic_backup",
+                ExistingPeriodicWorkPolicy.KEEP,
+                periodicBackup);
+
+        Timber.d("Backup scheduled");
     }
 }

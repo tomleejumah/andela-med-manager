@@ -17,6 +17,7 @@ import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.FileList;
 
 import org.json.JSONObject;
 
@@ -28,8 +29,6 @@ import timber.log.Timber;
 
 public class DriveBackupWorker extends Worker {
 
-    private static final String BACKUP_FOLDER = "MedManager_Backups";
-
     public DriveBackupWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
@@ -38,18 +37,17 @@ public class DriveBackupWorker extends Worker {
     @Override
     public Result doWork() {
         try {
+            //init Drive service
             Drive driveService = setupDriveService();
             if (driveService == null) {
                 return Result.failure();
             }
 
-            String timestamp = String.valueOf(System.currentTimeMillis());
-
-            // 1. Backup Room Database
-            boolean dbBackupSuccess = backupDatabase(driveService, timestamp);
+            // 1. Backup Database
+            boolean dbBackupSuccess = backupDatabase(driveService);
 
             // 2. Backup SharedPreferences
-            boolean prefsBackupSuccess = backupSharedPreferences(driveService, timestamp);
+            boolean prefsBackupSuccess = backupSharedPreferences(driveService);
 
             if (dbBackupSuccess && prefsBackupSuccess) {
                 Timber.tag("BackupWorker").d("Complete backup successful!");
@@ -63,7 +61,7 @@ public class DriveBackupWorker extends Worker {
             Timber.tag("BackupWorker").e(e, "Authentication required");
             return Result.failure();
         } catch (Exception e) {
-            Timber.tag("BackupWorker").e(e, "❌ Backup failed");
+            Timber.tag("BackupWorker").e(e, "Backup failed");
             return Result.retry();
         }
     }
@@ -88,30 +86,41 @@ public class DriveBackupWorker extends Worker {
         ).setApplicationName("Andela-Med-Manager").build();
     }
 
-    private boolean backupDatabase(Drive driveService, String timestamp) {
+    private boolean backupDatabase(Drive driveService) {
         try {
-            // Get the database file
             File dbFile = getApplicationContext().getDatabasePath("medmanager_db");
             if (!dbFile.exists()) {
                 Timber.tag("BackupWorker").e("Database file not found");
                 return false;
             }
 
-            // Creating Drive file metadata
-            com.google.api.services.drive.model.File fileMetadata =
-                    new com.google.api.services.drive.model.File();
-            fileMetadata.setName("medmanager_db_" + timestamp + ".db");
-            fileMetadata.setParents(Collections.singletonList("appDataFolder"));
-
-            // Uploading the database
             FileContent mediaContent = new FileContent("application/x-sqlite3", dbFile);
-            com.google.api.services.drive.model.File uploadedFile = driveService.files()
-                    .create(fileMetadata, mediaContent)
-                    .setFields("id,name,size")
+
+            // check if file exists in drive so we update instead f creating-new file everytime
+            FileList result = driveService.files().list()
+                    .setSpaces("appDataFolder")
+                    .setQ("name = 'medmanager_db.db'")
+                    .setFields("files(id, name)")
                     .execute();
 
-            Timber.tag("BackupWorker").d("📊 Database backup uploaded: %s (%s bytes)",
-                    uploadedFile.getName(), uploadedFile.getSize());
+            if (!result.getFiles().isEmpty()) {
+                // updating
+                String fileId = result.getFiles().get(0).getId();
+                driveService.files().update(fileId, null, mediaContent).execute();
+                Timber.tag("BackupWorker").d("Database backup updated");
+            } else {
+                // creating new
+                com.google.api.services.drive.model.File fileMetadata =
+                        new com.google.api.services.drive.model.File();
+                fileMetadata.setName("medmanager_db.db");
+                fileMetadata.setParents(Collections.singletonList("appDataFolder"));
+
+                driveService.files().create(fileMetadata, mediaContent)
+                        .setFields("id,name,size")
+                        .execute();
+                Timber.tag("BackupWorker").d("Database backup created");
+            }
+
             return true;
 
         } catch (Exception e) {
@@ -120,13 +129,9 @@ public class DriveBackupWorker extends Worker {
         }
     }
 
-    private boolean backupSharedPreferences(Drive driveService, String timestamp) {
+    private boolean backupSharedPreferences(Drive driveService) {
         try {
-            // Getting all SharedPreferences
-            String[] prefFiles = {
-                    "backup_prefs"
-            };
-
+            String[] prefFiles = {"backup_prefs"};
             JSONObject allPrefs = new JSONObject();
 
             for (String prefName : prefFiles) {
@@ -137,8 +142,7 @@ public class DriveBackupWorker extends Worker {
                 Map<String, ?> allEntries = prefs.getAll();
 
                 for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-                    Object value = entry.getValue();
-                    prefData.put(entry.getKey(), value);
+                    prefData.put(entry.getKey(), entry.getValue());
                 }
 
                 if (prefData.length() > 0) {
@@ -151,23 +155,34 @@ public class DriveBackupWorker extends Worker {
                 return true;
             }
 
-            // Create Drive file for preferences
-            com.google.api.services.drive.model.File fileMetadata =
-                    new com.google.api.services.drive.model.File();
-            fileMetadata.setName("medmanager_prefs_" + timestamp + ".json");
-            fileMetadata.setParents(Collections.singletonList("appDataFolder"));
-
-            // Uploading preferences as JSON
             byte[] jsonBytes = allPrefs.toString(2).getBytes("UTF-8");
             ByteArrayContent mediaContent = new ByteArrayContent("application/json", jsonBytes);
 
-            com.google.api.services.drive.model.File uploadedFile = driveService.files()
-                    .create(fileMetadata, mediaContent)
-                    .setFields("id,name,size")
+            // check if prefs backup exists
+            FileList result = driveService.files().list()
+                    .setSpaces("appDataFolder")
+                    .setQ("name = 'medmanager_prefs.json'")
+                    .setFields("files(id, name)")
                     .execute();
 
-            Timber.tag("BackupWorker").d("Preferences backup uploaded: %s (%s bytes)",
-                    uploadedFile.getName(), uploadedFile.getSize());
+            if (!result.getFiles().isEmpty()) {
+                // updating
+                String fileId = result.getFiles().get(0).getId();
+                driveService.files().update(fileId, null, mediaContent).execute();
+                Timber.tag("BackupWorker").d("Preferences backup updated");
+            } else {
+                // creating new
+                com.google.api.services.drive.model.File fileMetadata =
+                        new com.google.api.services.drive.model.File();
+                fileMetadata.setName("medmanager_prefs.json");
+                fileMetadata.setParents(Collections.singletonList("appDataFolder"));
+
+                driveService.files().create(fileMetadata, mediaContent)
+                        .setFields("id,name,size")
+                        .execute();
+                Timber.tag("BackupWorker").d("Preferences backup created");
+            }
+
             return true;
 
         } catch (Exception e) {
